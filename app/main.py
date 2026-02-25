@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi import Depends
 from app.routes import health, ask
 from app.models import models
+from app.core.config import settings
 from pydantic import BaseModel, Field
 
 app = FastAPI()
@@ -17,7 +18,7 @@ app.include_router(health.router)
 
 
 def get_api_version():
-    return "v1"
+    return settings.api_version
 
 
 @app.get("/version")
