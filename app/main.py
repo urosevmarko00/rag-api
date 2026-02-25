@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi import Depends
 from app.routes import health, ask
+from app.models import models
 from pydantic import BaseModel, Field
 
 app = FastAPI()
@@ -37,15 +38,13 @@ def search(q: str, limit: int = 10):
 # endregion
 
 # region POSTS
-class Document(BaseModel):
-    title: str
-    content: str = Field(min_length=10)
 
 
 @app.post("/documents")
-def create_document(doc: Document):
+def create_document(doc: models.Document):
     return {"message": "Document stored", "length": len(doc.title + doc.content)}
 
 
 app.include_router(ask.router)
+
 # endregion

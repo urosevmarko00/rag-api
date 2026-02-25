@@ -1,15 +1,12 @@
 from fastapi import APIRouter
-from pydantic import BaseModel
+from app.models import models
 
 router = APIRouter()
 
 
 # region POSTS
-class QuestionRequest(BaseModel):
-    question: str
-
 
 @router.post("/ask")
-def ask_question(request: QuestionRequest):
-    return {"received": request}
+def ask_question(request: models.QuestionRequest):
+    return {"received": request.question}
 # endregion
