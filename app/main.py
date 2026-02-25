@@ -3,16 +3,22 @@ from fastapi import Depends
 from app.routes import health, ask
 from pydantic import BaseModel, Field
 
+
+class Document(BaseModel):
+    title: str
+    content: str = Field(min_length=10)
+
+
 app = FastAPI()
 
 
-# region GETS
 @app.get("/")
 def root():
     return {"message": "FastAPI is running"}
 
 
 app.include_router(health.router)
+app.include_router(ask.router)
 
 
 def get_api_version():
@@ -34,19 +40,6 @@ def search(q: str, limit: int = 10):
     return {"query": q, "limit": limit}
 
 
-# endregion
-
-
-# region POSTS
-class Document(BaseModel):
-    title: str
-    content: str = Field(min_length=10)
-
-
 @app.post("/documents")
 def create_document(doc: Document):
     return {"message": "Document stored", "length": len(doc.title + doc.content)}
-
-
-app.include_router(ask.router)
-# endregion
