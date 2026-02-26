@@ -2,12 +2,13 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    app_name: str = "RAG API"
-    api_version: str = "v1"
-    debug: bool = True
+    app_name: str
+    api_version: str
+    debug: bool
 
-    class Config:
-        env_file = ".env"
+    model_config = {
+        "env_file": ".env"
+    }
 
 
 settings = Settings()
