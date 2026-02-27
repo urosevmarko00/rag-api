@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi import Depends
-from app.routes import health, ask
-from app.models import models
+from app.routes import health, ask, document
 from app import dependencies
 
 app = FastAPI()
@@ -35,12 +34,7 @@ def search(q: str, limit: int = 10):
 
 # region POSTS
 
-
-@app.post("/documents")
-def create_document(doc: models.Document):
-    return {"message": "Document stored", "length": len(doc.title + doc.content)}
-
-
+app.include_router(document.router)
 app.include_router(ask.router)
 
 # endregion
