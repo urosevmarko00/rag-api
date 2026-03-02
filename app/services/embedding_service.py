@@ -1,12 +1,20 @@
-import hashlib
+from sentence_transformers import SentenceTransformer
+import numpy as np
 
 
 class EmbeddingService:
 
+    def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
+        self.model = SentenceTransformer(model_name)
+
     def embed(self, text: str) -> list[float]:
-        hash_object = hashlib.sha256(text.encode())
-        hash_digest = hash_object.digest()
+        embedding = self.model.encode(text, convert_to_numpy=True)
 
-        embedding = [b / 255 for b in hash_digest[:10]]
+        norm = np.linalg.norm(embedding)
+        if norm != 0:
+            embedding = embedding/norm
 
-        return embedding
+        return embedding.tolist()
+
+    def get_dimension(self) -> int:
+        return self.model.get_sentence_embedding_dimension()
