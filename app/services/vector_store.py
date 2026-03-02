@@ -4,10 +4,10 @@ from typing import List, Tuple
 
 class VectorStore:
     def __init__(self):
-        self.vectors: List[Tuple[List[float], str]] = []
+        self.vectors: List[Tuple[str, List[float], str]] = []
 
-    def add(self, text: str, embedding: List[float]):
-        self.vectors.append((embedding, text))
+    def add(self, doc_id: str, text: str, embedding: List[float]):
+        self.vectors.append((doc_id, embedding, text))
 
     def cosine_similarity(self, v1: List[float], v2: List[float]) -> float:
         dot_product = sum(a * b for a, b in zip(v1, v2))
@@ -24,9 +24,9 @@ class VectorStore:
         if not self.vectors:
             return []
 
-        for embedding, text in self.vectors:
+        for doc_id, embedding, text in self.vectors:
             score = self.cosine_similarity(query_embedding, embedding)
-            scored.append((score, text))
+            scored.append((score, doc_id, text))
 
         scored.sort(reverse=True, key=lambda x: x[0])
 

@@ -9,9 +9,9 @@ router = APIRouter()
 # region POSTS
 
 @router.post("/ask")
-def ask_question(request: models.QuestionRequest, rag_service: RAGService = Depends(dependencies.get_rag_service)):
+def ask_question(request: models.QuestionRequest, top_k: int = 3, rag_service: RAGService = Depends(dependencies.get_rag_service)):
     try:
-        result = rag_service.ask(request.question)
+        result = rag_service.ask(request.question, top_k)
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
