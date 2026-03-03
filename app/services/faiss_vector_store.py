@@ -1,9 +1,11 @@
 import faiss
 import os
-from app.models.models import Document
 import json
 import numpy as np
 from typing import List, Tuple
+from app.core.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class FAISSVectorStore:
@@ -12,16 +14,20 @@ class FAISSVectorStore:
         self.dimension = dimension
         if os.path.exists("faiss.index"):
             self.index = faiss.read_index("faiss.index")
+            logger.info("FAISS index loaded from disk")
             if self.index.d != self.dimension:
                 raise ValueError(f"Index dimension {self.index.d} does not match expected {self.dimension}")
         else:
             self.index = faiss.IndexFlatIP(dimension)
+            logger.info("New FAISS index created")
 
         if os.path.exists("docs.json"):
             with open("docs.json") as f:
                 self.texts = json.load(f)
+                logger.info(f"Loaded {len(self.texts)} stored chunks")
         else:
             self.texts: List[Tuple[str, str, str]] = []  # doc_id, title and text
+            logger.info("No existing documents found")
 
     def add(self, doc_id: str, title: str, text: str, embedding: List[float]):
         vector = np.array([embedding], dtype="float32")
@@ -29,13 +35,17 @@ class FAISSVectorStore:
         self.index.add(vector)
         self.texts.append((doc_id, title, text))
 
+        logger.debug(f"Added chunk for document {doc_id}")
+
     def save(self):
         faiss.write_index(self.index, "faiss.index")
-        with open("docs.json", "w") as f:
+        with open("docs.json", "w", encoding="utf-8") as f:
             json.dump(self.texts, f, ensure_ascii=False, indent=2)
+        logger.info(f"FAISS index saved. Total vectors: {self.index.ntotal}")
 
     def search(self, query_embedding: List[float], top_k: int = 3):
         if self.index.ntotal == 0:
+            logger.info("Search attempted on empty index")
             return []
 
         query = np.array([query_embedding], dtype="float32")
@@ -47,6 +57,8 @@ class FAISSVectorStore:
                 continue
             doc_id, title, text = self.texts[idx]
             results.append((float(score), doc_id, title, text))
+
+        logger.debug(f"Search returned {len(results)} results")
 
         return results
 
