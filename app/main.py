@@ -2,7 +2,9 @@ from fastapi import FastAPI
 from fastapi import Depends
 from app.routes import health, ask, document
 from app import dependencies
+from app.core.logger import setup_logger
 
+setup_logger()
 app = FastAPI()
 
 
