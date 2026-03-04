@@ -12,8 +12,13 @@ class FAISSVectorStore:
 
     def __init__(self, dimension: int):
         self.dimension = dimension
-        if os.path.exists("faiss.index"):
-            self.index = faiss.read_index("faiss.index")
+
+        self.data_dir = "data"
+        self.faiss_path = os.path.join(self.data_dir, "faiss.index")
+        self.docs_path = os.path.join(self.data_dir, "docs.json")
+
+        if os.path.exists(self.faiss_path):
+            self.index = faiss.read_index(self.faiss_path)
             logger.info("FAISS index loaded from disk")
             if self.index.d != self.dimension:
                 raise ValueError(f"Index dimension {self.index.d} does not match expected {self.dimension}")
@@ -21,8 +26,8 @@ class FAISSVectorStore:
             self.index = faiss.IndexFlatIP(dimension)
             logger.info("New FAISS index created")
 
-        if os.path.exists("docs.json"):
-            with open("docs.json") as f:
+        if os.path.exists(self.docs_path):
+            with open(self.docs_path) as f:
                 self.texts = json.load(f)
                 logger.info(f"Loaded {len(self.texts)} stored chunks")
         else:
@@ -38,8 +43,8 @@ class FAISSVectorStore:
         logger.debug(f"Added chunk for document {doc_id}")
 
     def save(self):
-        faiss.write_index(self.index, "faiss.index")
-        with open("docs.json", "w", encoding="utf-8") as f:
+        faiss.write_index(self.index, self.faiss_path)
+        with open(self.docs_path, "w", encoding="utf-8") as f:
             json.dump(self.texts, f, ensure_ascii=False, indent=2)
         logger.info(f"FAISS index saved. Total vectors: {self.index.ntotal}")
 

@@ -6,7 +6,7 @@ class LocalLLM(BaseLLM):
 
     def __init__(self, model_name: str = "llama3"):
         self.model_name = model_name
-        self.url = "http://localhost:11434/api/generate"
+        self.url = "http://host.docker.internal:11434/api/generate"
 
     def generate(self, context: str, question: str) -> str:
         prompt = f"""
